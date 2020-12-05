@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="board-map">
+	<select id="retrieveList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+			SELECT BOARD_SN boardId
+			     , TITLE title
+			     , CONTENTS contents
+			     , CREATE_DATE createdDate
+			     , CREATE_USER writer
+			  FROM TB_BOARD
+			<dynamic prepend="where">
+				<isNotEmpty prepend="AND" property="title">
+					title LIKE '%' || #title# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="contents">
+					contents LIKE '%' || #contents# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="writer">
+					CREATE_USER LIKE '%' || #writer# || '%'
+				</isNotEmpty>
+			</dynamic>
+			ORDER BY BOARD_SN desc
+	</select>
+</sqlMap>

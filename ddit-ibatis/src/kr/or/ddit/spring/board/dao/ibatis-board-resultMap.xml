@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="board-resultMap">
+    <resultMap id="boardResult" class="kr.or.ddit.spring.board.vo.BoardVo">
+		<result property="boardId" column="BOARD_SN"/>
+		<result property="title" column="TITLE"/>
+		<result property="contents" column="CONTENTS"/>
+		<result property="createdDate" column="CREATE_DATE"/>
+		<result property="writer" column="CREATE_USER"/>
+	</resultMap>
+	
+	<select id="retrieveList" parameterClass="kr.or.ddit.spring.board.vo.BoardVo" resultMap="boardResult">
+			SELECT BOARD_SN
+			     , TITLE
+			     , CONTENTS
+			     , CREATE_DATE
+			     , CREATE_USER
+			  FROM TB_BOARD
+			<dynamic prepend="where">
+				<isNotEmpty prepend="AND" property="title">
+					title LIKE '%' || #title# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="contents">
+					contents LIKE '%' || #contents# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="writer">
+					CREATE_USER LIKE '%' || #writer# || '%'
+				</isNotEmpty>
+			</dynamic>
+			ORDER BY BOARD_SN desc
+	</select>
+</sqlMap>

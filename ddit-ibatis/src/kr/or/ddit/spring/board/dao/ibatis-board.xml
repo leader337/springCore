@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="board">
+	<insert id="create" parameterClass="kr.or.ddit.spring.board.vo.BoardVo">
+		<selectKey resultClass="int" keyProperty="boardId">
+<!-- 			select max(sampleId)+1 sampleId from sample -->
+			select SEQ_BOARD_SN.nextval boardId from dual
+		</selectKey>
+		<![CDATA[
+			INSERT INTO TB_BOARD 
+				( BOARD_SN
+				  , TITLE
+				  , CONTENTS
+				  , CREATE_DATE
+				  , CREATE_USER)
+			VALUES ( #boardId:numeric#
+				  , #title:varchar#
+				  , #contents:varchar#
+				  , sysdate
+				  , #writer#)
+		]]>
+	</insert>
+	
+	<update id="update" parameterClass="kr.or.ddit.spring.board.vo.BoardVo">
+		<![CDATA[
+			UPDATE TB_BOARD 
+			SET  title=#title:varchar#
+				, contents=#contents:varchar#
+			WHERE BOARD_SN=#boardId:numeric#
+		]]>
+	</update>
+	
+	<delete id="delete" parameterClass="kr.or.ddit.spring.board.vo.BoardVo">
+		<![CDATA[
+			DELETE FROM TB_BOARD 
+			WHERE BOARD_SN=#boardId:numeric#
+		]]>
+	</delete>
+	
+	<select id="retrieve" parameterClass="kr.or.ddit.spring.board.vo.BoardVo" resultClass="kr.or.ddit.spring.board.vo.BoardVo">
+		<![CDATA[
+			SELECT BOARD_SN boardId
+			     , TITLE title
+			     , CONTENTS contents
+			     , CREATE_DATE createdDate
+			     , CREATE_USER writer
+			  FROM TB_BOARD
+			 WHERE BOARD_SN=#boardId:numeric#
+		]]>
+	</select>
+	
+	<select id="retrieveList" parameterClass="kr.or.ddit.spring.board.vo.BoardVo" resultClass="kr.or.ddit.spring.board.vo.BoardVo">
+			SELECT BOARD_SN boardId
+			     , TITLE title
+			     , CONTENTS contents
+			     , CREATE_DATE createdDate
+			     , CREATE_USER writer
+			  FROM TB_BOARD
+			<dynamic prepend="where">
+				<isNotEmpty prepend="AND" property="title">
+					title LIKE '%' || #title:varchar# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="contents">
+					contents LIKE '%' || #contents:varchar# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="writer">
+					CREATE_USER LIKE '%' || #writer:varchar# || '%'
+				</isNotEmpty>
+			</dynamic>
+			ORDER BY BOARD_SN desc
+	</select>
+	
+	
+	
+	<select id="retrievePagingCount" parameterClass="kr.or.ddit.spring.board.vo.BoardVo" resultClass="long">
+			SELECT COUNT(*) totcnt
+			FROM TB_BOARD
+			<dynamic prepend="where">
+				<isNotEmpty prepend="AND" property="title">
+					title LIKE '%' || #title:varchar# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="contents">
+					contents LIKE '%' || #contents:varchar# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="writer">
+					CREATE_USER LIKE '%' || #writer:varchar# || '%'
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<select id="retrievePagingList" parameterClass="kr.or.ddit.spring.board.vo.BoardVo" resultClass="kr.or.ddit.spring.board.vo.BoardVo">
+			SELECT B.*
+			  FROM (SELECT ROWNUM rowNumber
+			  			, A.*
+                             FROM
+                                (SELECT BOARD_SN boardId
+									     , TITLE title
+									     , CONTENTS contents
+									     , CREATE_DATE createdDate
+									     , CREATE_USER writer
+									  FROM TB_BOARD                              
+									<dynamic prepend="where">
+										<isNotEmpty prepend="AND" property="title">
+											TITLE LIKE '%' || #title:varchar# || '%'
+										</isNotEmpty>
+										<isNotEmpty prepend="AND" property="contents">
+											CONTENTS LIKE '%' || #contents:varchar# || '%'
+										</isNotEmpty>
+									</dynamic>
+									ORDER BY boardId DESC )A)B
+			WHERE B.rowNumber BETWEEN #currentPage#+1 AND #currentPage# + #countPerPage#
+	</select>
+
+</sqlMap>
