@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<context:annotation-config/>
+	<context:component-scan base-package="kr.or.ddit"/>
+	
+	<bean id="advice4XML" class="kr.or.ddit.spring.advice.Advice4XML"/>
+	
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="targetMethod" 
+		     expression="execution(* kr.or.ddit.spring..*DAO.*(..))" />
+		<aop:aspect ref="advice4XML">
+<!-- 			<aop:before pointcut-ref="targetMethod" method="beforeMethod"/> -->
+<!-- 			<aop:after-returning pointcut-ref="targetMethod" method="afterReturningMethod" -->
+<!-- 			 								returning="retVal"/> -->
+<!-- 			<aop:around pointcut-ref="targetMethod" method="aroundMethod"/> -->
+			<aop:after-throwing pointcut-ref="targetMethod" method="afterThrowingMethod"
+											throwing="ex"/>
+		</aop:aspect>
+	</aop:config>
+
+</beans>
+
+
+
+
+
